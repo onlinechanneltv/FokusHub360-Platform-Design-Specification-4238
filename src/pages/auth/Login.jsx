@@ -21,11 +21,10 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       const user = await login(formData.email, formData.password);
       toast.success(`Welcome back, ${user.name}!`);
-      
+
       // Redirect based on user role
       switch (user.role) {
         case 'admin':
@@ -139,22 +138,13 @@ const Login = () => {
                   />
                   <span className="ml-2 text-sm text-gray-600">Remember me</span>
                 </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-primary-600 hover:text-primary-700"
-                >
+                <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700">
                   Forgot password?
                 </Link>
               </div>
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full"
-                loading={loading}
-              >
+              <Button type="submit" variant="primary" size="lg" className="w-full" loading={loading}>
                 Sign In
               </Button>
             </form>
@@ -166,7 +156,9 @@ const Login = () => {
                 {demoAccounts.map((account) => (
                   <button
                     key={account.role}
-                    onClick={() => setFormData({ email: account.email, password: account.password })}
+                    onClick={() =>
+                      setFormData({ email: account.email, password: account.password })
+                    }
                     className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors duration-200"
                   >
                     {account.role}

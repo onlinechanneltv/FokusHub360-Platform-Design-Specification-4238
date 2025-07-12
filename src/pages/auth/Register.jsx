@@ -22,6 +22,7 @@ const Register = () => {
     company: '',
     role: userType
   });
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register, loading } = useAuthStore();
@@ -34,12 +35,12 @@ const Register = () => {
       toast.error('Passwords do not match');
       return;
     }
-
+    
     if (formData.password.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
     }
-
+    
     try {
       const user = await register(formData);
       toast.success(`Welcome to FokusHub360, ${user.name}!`);
@@ -71,15 +72,15 @@ const Register = () => {
   };
 
   const userTypes = [
-    { 
-      value: 'client', 
-      label: 'Client', 
+    {
+      value: 'client',
+      label: 'Client',
       description: 'Create focus groups and get insights',
       icon: FiBuilding
     },
-    { 
-      value: 'participant', 
-      label: 'Participant', 
+    {
+      value: 'participant',
+      label: 'Participant',
       description: 'Join focus groups and earn rewards',
       icon: FiUser
     }
@@ -189,7 +190,10 @@ const Register = () => {
                     Company Name
                   </label>
                   <div className="relative">
-                    <SafeIcon icon={FiBuilding} className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <SafeIcon
+                      icon={FiBuilding}
+                      className="absolute left-3 top-3 w-5 h-5 text-gray-400"
+                    />
                     <input
                       type="text"
                       id="company"
@@ -198,6 +202,7 @@ const Register = () => {
                       onChange={handleChange}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
                       placeholder="Enter your company name"
+                      required={formData.role === 'client'}
                     />
                   </div>
                 </div>
@@ -232,7 +237,10 @@ const Register = () => {
 
               {/* Confirm Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -252,7 +260,10 @@ const Register = () => {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                   >
-                    <SafeIcon icon={showConfirmPassword ? FiEyeOff : FiEye} className="w-5 h-5" />
+                    <SafeIcon
+                      icon={showConfirmPassword ? FiEyeOff : FiEye}
+                      className="w-5 h-5"
+                    />
                   </button>
                 </div>
               </div>

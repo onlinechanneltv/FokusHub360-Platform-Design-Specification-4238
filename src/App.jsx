@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/layout/Navbar';
@@ -7,6 +7,7 @@ import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ClientDashboard from './pages/client/ClientDashboard';
+import CreateFocusGroup from './pages/client/CreateFocusGroup';
 import ParticipantDashboard from './pages/participant/ParticipantDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProfileSetup from './components/participant/ProfileSetup';
@@ -53,6 +54,12 @@ const DashboardRedirect = () => {
 };
 
 function App() {
+  const { initialize } = useAuthStore();
+  
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+  
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
@@ -61,68 +68,86 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
-            <Route path="/login" element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } />
-            <Route path="/register" element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } />
-
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+            
             {/* Dashboard Redirect */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <DashboardRedirect />
-              </ProtectedRoute>
-            } />
-
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardRedirect />
+                </ProtectedRoute>
+              }
+            />
+            
             {/* Client Routes */}
-            <Route path="/client" element={
-              <ProtectedRoute allowedRoles={['client']}>
-                <ClientDashboard />
-              </ProtectedRoute>
-            } />
-
+            <Route
+              path="/client"
+              element={
+                <ProtectedRoute allowedRoles={['client']}>
+                  <ClientDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/client/create-group"
+              element={
+                <ProtectedRoute allowedRoles={['client']}>
+                  <CreateFocusGroup />
+                </ProtectedRoute>
+              }
+            />
+            
             {/* Participant Routes */}
-            <Route path="/participant" element={
-              <ProtectedRoute allowedRoles={['participant']}>
-                <ParticipantDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/participant/profile-setup" element={
-              <ProtectedRoute allowedRoles={['participant']}>
-                <ProfileSetup />
-              </ProtectedRoute>
-            } />
-
+            <Route
+              path="/participant"
+              element={
+                <ProtectedRoute allowedRoles={['participant']}>
+                  <ParticipantDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/participant/profile-setup"
+              element={
+                <ProtectedRoute allowedRoles={['participant']}>
+                  <ProfileSetup />
+                </ProtectedRoute>
+              }
+            />
+            
             {/* Admin Routes */}
-            <Route path="/admin" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            
             {/* Manager Routes */}
-            <Route path="/manager" element={
-              <ProtectedRoute allowedRoles={['manager']}>
-                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                  <div className="text-center">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">Manager Dashboard</h1>
-                    <p className="text-gray-600">Coming soon...</p>
+            <Route
+              path="/manager"
+              element={
+                <ProtectedRoute allowedRoles={['manager']}>
+                  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div className="text-center">
+                      <h1 className="text-3xl font-bold text-gray-900 mb-4">Manager Dashboard</h1>
+                      <p className="text-gray-600">Coming soon...</p>
+                    </div>
                   </div>
-                </div>
-              </ProtectedRoute>
-            } />
-
+                </ProtectedRoute>
+              }
+            />
+            
             {/* Catch all route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
         <Footer />
-        <Toaster 
+        <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,

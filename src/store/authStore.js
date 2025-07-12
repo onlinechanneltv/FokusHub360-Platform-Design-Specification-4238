@@ -1,82 +1,103 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import * as authAPI from '../api/auth';
 
-const useAuthStore = create((set, get) => ({
-  user: null,
-  isAuthenticated: false,
-  userRole: null,
-  loading: false,
-
-  setUser: (user) => set({ 
-    user, 
-    isAuthenticated: !!user,
-    userRole: user?.role || null 
-  }),
-
-  setLoading: (loading) => set({ loading }),
-
-  logout: () => set({ 
-    user: null, 
-    isAuthenticated: false, 
-    userRole: null 
-  }),
-
-  // Mock authentication functions
-  login: async (email, password) => {
-    set({ loading: true });
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock user data based on email
-    let mockUser = {
-      id: '1',
-      email,
-      name: 'John Doe',
-      role: 'client'
-    };
-
-    if (email.includes('admin')) {
-      mockUser.role = 'admin';
-      mockUser.name = 'Admin User';
-    } else if (email.includes('manager')) {
-      mockUser.role = 'manager';
-      mockUser.name = 'Manager User';
-    } else if (email.includes('participant')) {
-      mockUser.role = 'participant';
-      mockUser.name = 'Participant User';
+const useAuthStore = create(
+  persist(
+    (set, get) => ({
+      user: null,
+      isAuthenticated: false,
+      userRole: null,
+      loading: false,
+      
+      // Set user from auth response
+      setUser: (user) => set({
+        user,
+        isAuthenticated: !!user,
+        userRole: user?.role || null
+      }),
+      
+      // Toggle loading state
+      setLoading: (loading) => set({ loading }),
+      
+      // Check if user session exists on app load
+      initialize: async () => {
+        try {
+          set({ loading: true });
+          const user = await authAPI.getCurrentUser();
+          
+          if (user) {
+            set({
+              user,
+              isAuthenticated: true,
+              userRole: user.role
+            });
+          }
+        } catch (error) {
+          console.error('Failed to initialize auth:', error);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      
+      // Login user
+      login: async (email, password) => {
+        set({ loading: true });
+        try {
+          const { user } = await authAPI.signIn(email, password);
+          set({
+            user,
+            isAuthenticated: true,
+            userRole: user.role,
+            loading: false
+          });
+          return user;
+        } catch (error) {
+          set({ loading: false });
+          throw error;
+        }
+      },
+      
+      // Register user
+      register: async (userData) => {
+        set({ loading: true });
+        try {
+          const { user } = await authAPI.signUp(userData.email, userData.password, userData);
+          set({
+            user,
+            isAuthenticated: true,
+            userRole: user.role,
+            loading: false
+          });
+          return user;
+        } catch (error) {
+          set({ loading: false });
+          throw error;
+        }
+      },
+      
+      // Logout user
+      logout: async () => {
+        set({ loading: true });
+        try {
+          await authAPI.signOut();
+          set({
+            user: null,
+            isAuthenticated: false,
+            userRole: null,
+            loading: false
+          });
+        } catch (error) {
+          set({ loading: false });
+          throw error;
+        }
+      }
+    }),
+    {
+      name: 'fokushub-auth',
+      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated, userRole: state.userRole })
     }
-
-    set({ 
-      user: mockUser, 
-      isAuthenticated: true, 
-      userRole: mockUser.role,
-      loading: false 
-    });
-
-    return mockUser;
-  },
-
-  register: async (userData) => {
-    set({ loading: true });
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = {
-      id: Date.now().toString(),
-      ...userData,
-      role: userData.role || 'client'
-    };
-
-    set({ 
-      user: mockUser, 
-      isAuthenticated: true, 
-      userRole: mockUser.role,
-      loading: false 
-    });
-
-    return mockUser;
-  }
-}));
+  )
+);
 
 export default useAuthStore;

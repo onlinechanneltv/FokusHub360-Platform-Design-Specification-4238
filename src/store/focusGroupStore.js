@@ -1,98 +1,96 @@
 import { create } from 'zustand';
+import * as focusGroupAPI from '../api/focusGroups';
 
 const useFocusGroupStore = create((set, get) => ({
   focusGroups: [],
   currentGroup: null,
   loading: false,
   
-  // Mock data
-  mockGroups: [
-    {
-      id: '1',
-      title: 'Movie Trailer Feedback - Action Thriller',
-      status: 'active',
-      participantCount: 45,
-      targetCount: 50,
-      createdAt: new Date('2024-01-15'),
-      deadline: new Date('2024-01-25'),
-      budget: 2500,
-      type: 'video',
-      client: 'Universal Studios',
-      description: 'Get feedback on our upcoming action thriller trailer',
-      rewards: { type: 'cash', amount: 50 }
-    },
-    {
-      id: '2',
-      title: 'App UI/UX Design Review',
-      status: 'completed',
-      participantCount: 30,
-      targetCount: 30,
-      createdAt: new Date('2024-01-10'),
-      deadline: new Date('2024-01-20'),
-      budget: 1500,
-      type: 'design',
-      client: 'TechStart Inc.',
-      description: 'Review new mobile app interface designs',
-      rewards: { type: 'gift_card', amount: 25 }
-    },
-    {
-      id: '3',
-      title: 'Book Cover Design Testing',
-      status: 'draft',
-      participantCount: 0,
-      targetCount: 25,
-      createdAt: new Date('2024-01-18'),
-      deadline: new Date('2024-01-28'),
-      budget: 1000,
-      type: 'image',
-      client: 'Penguin Random House',
-      description: 'Test multiple book cover designs for new romance novel',
-      rewards: { type: 'product', description: 'Free book copy + $20' }
-    }
-  ],
-
+  // Set loading state
   setLoading: (loading) => set({ loading }),
   
+  // Set focus groups
   setFocusGroups: (groups) => set({ focusGroups: groups }),
   
+  // Set current group
   setCurrentGroup: (group) => set({ currentGroup: group }),
-
+  
+  // Load focus groups for the current user
   loadFocusGroups: async () => {
     set({ loading: true });
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-    set({ focusGroups: get().mockGroups, loading: false });
+    try {
+      const data = await focusGroupAPI.getFocusGroups();
+      set({ focusGroups: data, loading: false });
+    } catch (error) {
+      console.error('Error loading focus groups:', error);
+      set({ loading: false });
+    }
   },
-
+  
+  // Load a specific focus group
+  loadFocusGroup: async (groupId) => {
+    set({ loading: true });
+    try {
+      const data = await focusGroupAPI.getFocusGroupById(groupId);
+      set({ currentGroup: data, loading: false });
+      return data;
+    } catch (error) {
+      console.error('Error loading focus group:', error);
+      set({ loading: false });
+      return null;
+    }
+  },
+  
+  // Create a new focus group
   createFocusGroup: async (groupData) => {
     set({ loading: true });
-    
-    const newGroup = {
-      id: Date.now().toString(),
-      ...groupData,
-      status: 'draft',
-      participantCount: 0,
-      createdAt: new Date(),
-    };
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const updatedGroups = [...get().focusGroups, newGroup];
-    set({ focusGroups: updatedGroups, loading: false });
-    
-    return newGroup;
+    try {
+      const newGroup = await focusGroupAPI.createFocusGroup(groupData);
+      set({
+        focusGroups: [newGroup, ...get().focusGroups],
+        loading: false
+      });
+      return newGroup;
+    } catch (error) {
+      set({ loading: false });
+      throw error;
+    }
   },
-
-  updateFocusGroup: async (id, updates) => {
+  
+  // Update a focus group
+  updateFocusGroup: async (groupId, updates) => {
     set({ loading: true });
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const updatedGroups = get().focusGroups.map(group => 
-      group.id === id ? { ...group, ...updates } : group
-    );
-    
-    set({ focusGroups: updatedGroups, loading: false });
+    try {
+      const updatedGroup = await focusGroupAPI.updateFocusGroup(groupId, updates);
+      set({
+        focusGroups: get().focusGroups.map(group => 
+          group.id === groupId ? updatedGroup : group
+        ),
+        currentGroup: get().currentGroup?.id === groupId ? updatedGroup : get().currentGroup,
+        loading: false
+      });
+      return updatedGroup;
+    } catch (error) {
+      set({ loading: false });
+      throw error;
+    }
+  },
+  
+  // Delete a focus group
+  deleteFocusGroup: async (groupId) => {
+    set({ loading: true });
+    try {
+      await focusGroupAPI.deleteFocusGroup(groupId);
+      set({
+        focusGroups: get().focusGroups.filter(group => group.id !== groupId),
+        currentGroup: get().currentGroup?.id === groupId ? null : get().currentGroup,
+        loading: false
+      });
+      return { success: true };
+    } catch (error) {
+      set({ loading: false });
+      throw error;
+    }
   }
 }));
 

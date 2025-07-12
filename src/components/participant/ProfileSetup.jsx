@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SafeIcon from '../../common/SafeIcon';
@@ -7,18 +7,49 @@ import Button from '../ui/Button';
 import Card from '../ui/Card';
 import { participantQuestions } from '../../data/participantQuestions';
 import toast from 'react-hot-toast';
+import useAuthStore from '../../store/authStore';
+import useProfileStore from '../../store/profileStore';
 
 const { FiChevronLeft, FiChevronRight, FiCheck, FiUser } = FiIcons;
 
 const ProfileSetup = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [loading, setLoading] = useState(false);
+  const { user } = useAuthStore();
+  const { 
+    saveProfileDetailsBatch, 
+    profileDetails,
+    loadProfileDetails,
+    completedCategories,
+    loading 
+  } = useProfileStore();
   const navigate = useNavigate();
 
   const categories = Object.keys(participantQuestions);
   const currentCategory = categories[currentStep];
   const currentQuestions = participantQuestions[currentCategory];
+
+  useEffect(() => {
+    if (user?.id) {
+      loadProfileDetails(user.id);
+    }
+  }, [user, loadProfileDetails]);
+
+  useEffect(() => {
+    // Pre-fill answers from loaded profile details
+    if (profileDetails && Object.keys(profileDetails).length > 0) {
+      const newAnswers = { ...answers };
+      
+      // Merge all category answers
+      Object.entries(profileDetails).forEach(([category, categoryAnswers]) => {
+        Object.entries(categoryAnswers).forEach(([questionId, answer]) => {
+          newAnswers[questionId] = answer;
+        });
+      });
+      
+      setAnswers(newAnswers);
+    }
+  }, [profileDetails]);
 
   const handleAnswerChange = (questionId, value) => {
     setAnswers(prev => ({
@@ -27,7 +58,39 @@ const ProfileSetup = () => {
     }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Save answers for current category before moving to next
+    const categoryQuestions = currentQuestions.questions;
+    const categoryAnswers = {};
+    
+    // Collect answers for current category questions
+    categoryQuestions.forEach(question => {
+      if (answers[question.id] !== undefined) {
+        categoryAnswers[question.id] = answers[question.id];
+      }
+    });
+    
+    // Check if required questions are answered
+    const missingRequired = categoryQuestions
+      .filter(q => q.required && answers[q.id] === undefined);
+    
+    if (missingRequired.length > 0) {
+      toast.error(`Please answer all required questions before proceeding.`);
+      return;
+    }
+    
+    // Save category answers to database
+    if (Object.keys(categoryAnswers).length > 0) {
+      try {
+        await saveProfileDetailsBatch(user.id, currentCategory, categoryAnswers);
+        toast.success(`${currentCategory} information saved successfully!`);
+      } catch (error) {
+        toast.error('Failed to save your answers. Please try again.');
+        console.error('Error saving profile details:', error);
+        return;
+      }
+    }
+    
     if (currentStep < categories.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -42,14 +105,28 @@ const ProfileSetup = () => {
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
+    // Final category save
+    const categoryQuestions = currentQuestions.questions;
+    const categoryAnswers = {};
     
-    // Simulate API call to save profile
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    categoryQuestions.forEach(question => {
+      if (answers[question.id] !== undefined) {
+        categoryAnswers[question.id] = answers[question.id];
+      }
+    });
+    
+    if (Object.keys(categoryAnswers).length > 0) {
+      try {
+        await saveProfileDetailsBatch(user.id, currentCategory, categoryAnswers);
+      } catch (error) {
+        toast.error('Failed to save your profile. Please try again.');
+        console.error('Error saving profile details:', error);
+        return;
+      }
+    }
     
     toast.success('Profile completed! You can now join focus groups.');
     navigate('/participant');
-    setLoading(false);
   };
 
   const renderQuestion = (question) => {
@@ -67,7 +144,6 @@ const ProfileSetup = () => {
             required={question.required}
           />
         );
-
       case 'number':
         return (
           <input
@@ -79,7 +155,6 @@ const ProfileSetup = () => {
             required={question.required}
           />
         );
-
       case 'date':
         return (
           <input
@@ -90,7 +165,6 @@ const ProfileSetup = () => {
             required={question.required}
           />
         );
-
       case 'textarea':
         return (
           <textarea
@@ -102,7 +176,6 @@ const ProfileSetup = () => {
             required={question.required}
           />
         );
-
       case 'select':
         return (
           <select
@@ -119,7 +192,6 @@ const ProfileSetup = () => {
             ))}
           </select>
         );
-
       case 'multiselect':
         return (
           <div className="grid grid-cols-2 gap-2">
@@ -143,7 +215,6 @@ const ProfileSetup = () => {
             ))}
           </div>
         );
-
       case 'scale':
         return (
           <div className="space-y-3">
@@ -164,7 +235,6 @@ const ProfileSetup = () => {
             </div>
           </div>
         );
-
       default:
         return null;
     }
@@ -214,7 +284,6 @@ const ProfileSetup = () => {
               </h2>
               <p className="text-gray-600">{currentQuestions.description}</p>
             </div>
-
             <div className="space-y-6">
               {currentQuestions.questions.map((question) => (
                 <div key={question.id}>
@@ -239,7 +308,6 @@ const ProfileSetup = () => {
           >
             Previous
           </Button>
-
           <Button
             variant="primary"
             onClick={handleNext}
