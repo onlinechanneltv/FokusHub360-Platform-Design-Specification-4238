@@ -9,10 +9,28 @@ import Badge from '../../components/ui/Badge';
 import useAuthStore from '../../store/authStore';
 
 const {
-  FiUsers, FiDollarSign, FiBarChart3, FiSettings, FiKey, FiShield, 
-  FiTrendingUp, FiActivity, FiDatabase, FiGlobe, FiMenu, FiX, 
-  FiHome, FiLayers, FiMessageSquare, FiAlertCircle, FiServer,
-  FiClock, FiGrid, FiFile, FiUserCheck, FiLock
+  FiUsers,
+  FiDollarSign,
+  FiBarChart3,
+  FiSettings,
+  FiKey,
+  FiShield,
+  FiTrendingUp,
+  FiActivity,
+  FiDatabase,
+  FiGlobe,
+  FiMenu,
+  FiX,
+  FiHome,
+  FiLayers,
+  FiMessageSquare,
+  FiAlertCircle,
+  FiServer,
+  FiClock,
+  FiGrid,
+  FiFile,
+  FiUserCheck,
+  FiLock
 } = FiIcons;
 
 const AdminDashboard = () => {
@@ -21,7 +39,7 @@ const AdminDashboard = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  
+
   const stats = [
     {
       label: 'Total Users',
@@ -91,59 +109,19 @@ const AdminDashboard = () => {
   ];
 
   const systemMetrics = [
-    {
-      name: 'API Requests',
-      value: '2.4M',
-      trend: 'up'
-    },
-    {
-      name: 'Storage Used',
-      value: '78%',
-      trend: 'stable'
-    },
-    {
-      name: 'Active Sessions',
-      value: '1,234',
-      trend: 'up'
-    },
-    {
-      name: 'Error Rate',
-      value: '0.02%',
-      trend: 'down'
-    }
+    { name: 'API Requests', value: '2.4M', trend: 'up' },
+    { name: 'Storage Used', value: '78%', trend: 'stable' },
+    { name: 'Active Sessions', value: '1,234', trend: 'up' },
+    { name: 'Error Rate', value: '0.02%', trend: 'down' }
   ];
 
   const quickActions = [
-    {
-      label: 'User Management',
-      icon: FiUsers,
-      href: '/admin/users'
-    },
-    {
-      label: 'API Keys',
-      icon: FiKey,
-      href: '/admin/api-keys'
-    },
-    {
-      label: 'System Settings',
-      icon: FiSettings,
-      href: '/admin/settings'
-    },
-    {
-      label: 'Analytics',
-      icon: FiBarChart3,
-      href: '/admin/analytics'
-    },
-    {
-      label: 'Form Builder',
-      icon: FiDatabase,
-      href: '/admin/forms'
-    },
-    {
-      label: 'Global Config',
-      icon: FiGlobe,
-      href: '/admin/config'
-    }
+    { label: 'User Management', icon: FiUsers, href: '/admin/users' },
+    { label: 'API Keys', icon: FiKey, href: '/admin/api-keys' },
+    { label: 'System Settings', icon: FiSettings, href: '/admin/settings' },
+    { label: 'Analytics', icon: FiBarChart3, href: '/admin/analytics' },
+    { label: 'Form Builder', icon: FiDatabase, href: '/admin/forms' },
+    { label: 'Global Config', icon: FiGlobe, href: '/admin/config' }
   ];
 
   const navigationItems = [
@@ -186,13 +164,8 @@ const AdminDashboard = () => {
       active: location.pathname === '/admin/messages',
       badge: '3'
     },
-    { 
-      type: 'divider' 
-    },
-    {
-      label: 'System',
-      type: 'header'
-    },
+    { type: 'divider' },
+    { label: 'System', type: 'header' },
     {
       label: 'API Management',
       icon: FiServer,
@@ -206,6 +179,12 @@ const AdminDashboard = () => {
       active: location.pathname === '/admin/forms'
     },
     {
+      label: 'Pages',
+      icon: FiFile,
+      href: '/admin/pages',
+      active: location.pathname === '/admin/pages'
+    },
+    {
       label: 'System Settings',
       icon: FiSettings,
       href: '/admin/settings',
@@ -217,13 +196,8 @@ const AdminDashboard = () => {
       href: '/admin/config',
       active: location.pathname === '/admin/config'
     },
-    { 
-      type: 'divider' 
-    },
-    {
-      label: 'Security',
-      type: 'header'
-    },
+    { type: 'divider' },
+    { label: 'Security', type: 'header' },
     {
       label: 'Permissions',
       icon: FiLock,
@@ -258,11 +232,11 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar for desktop */}
-      <div
-        className={`bg-white border-r border-gray-200 w-64 fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:block hidden`}
-      >
+      <div className={`bg-white border-r border-gray-200 w-64 fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } ${
+        mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:block hidden`}>
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
             <Link to="/admin" className="flex items-center space-x-3">
@@ -273,20 +247,21 @@ const AdminDashboard = () => {
                 Admin Panel
               </span>
             </Link>
-            <button 
+            <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="lg:hidden text-gray-500 hover:text-gray-600"
             >
               <SafeIcon icon={FiX} className="w-5 h-5" />
             </button>
           </div>
+
           <div className="flex-1 overflow-y-auto py-4 px-3">
             <nav className="space-y-1">
               {navigationItems.map((item, index) => {
                 if (item.type === 'divider') {
                   return <hr key={`divider-${index}`} className="my-3 border-gray-200" />;
                 }
-                
+
                 if (item.type === 'header') {
                   return (
                     <div key={`header-${item.label}`} className="px-3 my-2">
@@ -296,7 +271,7 @@ const AdminDashboard = () => {
                     </div>
                   );
                 }
-                
+
                 return (
                   <div
                     key={item.label}
@@ -311,7 +286,9 @@ const AdminDashboard = () => {
                       <SafeIcon
                         icon={item.icon}
                         className={`w-5 h-5 mr-3 ${
-                          item.active ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-500'
+                          item.active
+                            ? 'text-primary-600'
+                            : 'text-gray-400 group-hover:text-gray-500'
                         }`}
                       />
                       <span className="text-sm font-medium">{item.label}</span>
@@ -330,6 +307,7 @@ const AdminDashboard = () => {
               })}
             </nav>
           </div>
+
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
@@ -346,18 +324,16 @@ const AdminDashboard = () => {
 
       {/* Mobile sidebar backdrop */}
       {mobileSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-gray-600 bg-opacity-75 z-20 lg:hidden"
           onClick={() => setMobileSidebarOpen(false)}
         ></div>
       )}
 
       {/* Mobile sidebar */}
-      <div
-        className={`bg-white border-r border-gray-200 w-64 fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:hidden`}
-      >
+      <div className={`bg-white border-r border-gray-200 w-64 fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:hidden`}>
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
             <Link to="/admin" className="flex items-center space-x-3">
@@ -368,20 +344,21 @@ const AdminDashboard = () => {
                 Admin Panel
               </span>
             </Link>
-            <button 
+            <button
               onClick={() => setMobileSidebarOpen(false)}
               className="text-gray-500 hover:text-gray-600"
             >
               <SafeIcon icon={FiX} className="w-5 h-5" />
             </button>
           </div>
+
           <div className="flex-1 overflow-y-auto py-4 px-3">
             <nav className="space-y-1">
               {navigationItems.map((item, index) => {
                 if (item.type === 'divider') {
                   return <hr key={`divider-${index}`} className="my-3 border-gray-200" />;
                 }
-                
+
                 if (item.type === 'header') {
                   return (
                     <div key={`header-${item.label}`} className="px-3 my-2">
@@ -391,7 +368,7 @@ const AdminDashboard = () => {
                     </div>
                   );
                 }
-                
+
                 return (
                   <div
                     key={item.label}
@@ -406,7 +383,9 @@ const AdminDashboard = () => {
                       <SafeIcon
                         icon={item.icon}
                         className={`w-5 h-5 mr-3 ${
-                          item.active ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-500'
+                          item.active
+                            ? 'text-primary-600'
+                            : 'text-gray-400 group-hover:text-gray-500'
                         }`}
                       />
                       <span className="text-sm font-medium">{item.label}</span>
@@ -425,6 +404,7 @@ const AdminDashboard = () => {
               })}
             </nav>
           </div>
+
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center">
               <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
@@ -443,7 +423,7 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile header */}
         <div className="lg:hidden flex items-center justify-between h-16 bg-white border-b border-gray-200 px-4">
-          <button 
+          <button
             onClick={() => setMobileSidebarOpen(true)}
             className="text-gray-500 hover:text-gray-600"
           >
