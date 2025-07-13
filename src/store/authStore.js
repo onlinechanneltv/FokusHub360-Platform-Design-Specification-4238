@@ -2,6 +2,38 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as authAPI from '../api/auth';
 
+// Demo accounts for mock auth
+const demoAccounts = [
+  { 
+    email: 'admin@demo.com', 
+    password: 'demo123456', 
+    role: 'admin', 
+    name: 'Admin User',
+    id: 'admin-demo-id'
+  },
+  { 
+    email: 'manager@demo.com', 
+    password: 'demo123456', 
+    role: 'manager', 
+    name: 'Manager User',
+    id: 'manager-demo-id'
+  },
+  { 
+    email: 'client@demo.com', 
+    password: 'demo123456', 
+    role: 'client', 
+    name: 'Client User',
+    id: 'client-demo-id'
+  },
+  { 
+    email: 'participant@demo.com', 
+    password: 'demo123456', 
+    role: 'participant', 
+    name: 'Participant User',
+    id: 'participant-demo-id'
+  }
+];
+
 const useAuthStore = create(
   persist(
     (set, get) => ({
@@ -9,23 +41,31 @@ const useAuthStore = create(
       isAuthenticated: false,
       userRole: null,
       loading: false,
-      
-      // Set user from auth response
-      setUser: (user) => set({
-        user,
-        isAuthenticated: !!user,
-        userRole: user?.role || null
-      }),
-      
-      // Toggle loading state
+
+      setUser: (user) => 
+        set({
+          user,
+          isAuthenticated: !!user,
+          userRole: user?.role || null
+        }),
+
       setLoading: (loading) => set({ loading }),
-      
-      // Check if user session exists on app load
+
       initialize: async () => {
         try {
           set({ loading: true });
-          const user = await authAPI.getCurrentUser();
+          const storedUser = get().user;
+          if (storedUser && storedUser.isDemoAccount) {
+            set({ 
+              user: storedUser,
+              isAuthenticated: true,
+              userRole: storedUser.role,
+              loading: false 
+            });
+            return;
+          }
           
+          const user = await authAPI.getCurrentUser();
           if (user) {
             set({
               user,
@@ -39,10 +79,33 @@ const useAuthStore = create(
           set({ loading: false });
         }
       },
-      
-      // Login user
+
       login: async (email, password) => {
         set({ loading: true });
+        
+        const demoAccount = demoAccounts.find(
+          acc => acc.email === email && acc.password === password
+        );
+        
+        if (demoAccount) {
+          const user = {
+            id: demoAccount.id,
+            email: demoAccount.email,
+            name: demoAccount.name,
+            role: demoAccount.role,
+            isDemoAccount: true
+          };
+          
+          set({
+            user,
+            isAuthenticated: true,
+            userRole: demoAccount.role,
+            loading: false
+          });
+          
+          return user;
+        }
+        
         try {
           const { user } = await authAPI.signIn(email, password);
           set({
@@ -57,29 +120,20 @@ const useAuthStore = create(
           throw error;
         }
       },
-      
-      // Register user
-      register: async (userData) => {
-        set({ loading: true });
-        try {
-          const { user } = await authAPI.signUp(userData.email, userData.password, userData);
-          set({
-            user,
-            isAuthenticated: true,
-            userRole: user.role,
-            loading: false
-          });
-          return user;
-        } catch (error) {
-          set({ loading: false });
-          throw error;
-        }
-      },
-      
-      // Logout user
+
       logout: async () => {
         set({ loading: true });
         try {
+          if (get().user?.isDemoAccount) {
+            set({
+              user: null,
+              isAuthenticated: false,
+              userRole: null,
+              loading: false
+            });
+            return;
+          }
+          
           await authAPI.signOut();
           set({
             user: null,
@@ -95,7 +149,11 @@ const useAuthStore = create(
     }),
     {
       name: 'fokushub-auth',
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated, userRole: state.userRole })
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        userRole: state.userRole
+      })
     }
   )
 );

@@ -16,17 +16,52 @@ const Login = () => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loading } = useAuthStore();
+  const { login, loading, setUser } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // For demo purposes, bypass actual authentication for demo accounts
+    const demoAccount = demoAccounts.find(
+      acc => acc.email === formData.email && acc.password === formData.password
+    );
+    
+    if (demoAccount) {
+      // Mock successful login for demo accounts
+      toast.success(`Welcome back, ${demoAccount.name}!`);
+      
+      // Create user object and set in store
+      const user = {
+        id: demoAccount.id,
+        email: demoAccount.email,
+        name: demoAccount.name,
+        role: demoAccount.role,
+        isDemoAccount: true
+      };
+      
+      // Set user in store directly
+      setUser(user);
+      
+      // Direct navigation based on role
+      redirectUserBasedOnRole(demoAccount.role);
+      return;
+    }
+    
+    // For non-demo accounts, proceed with normal login
     try {
       const user = await login(formData.email, formData.password);
       toast.success(`Welcome back, ${user.name}!`);
+      redirectUserBasedOnRole(user.role);
+    } catch (error) {
+      toast.error('Invalid credentials. Please try again.');
+    }
+  };
 
-      // Redirect based on user role
-      switch (user.role) {
+  const redirectUserBasedOnRole = (role) => {
+    // Use timeout to ensure store is updated before navigation
+    setTimeout(() => {
+      switch (role.toLowerCase()) {
         case 'admin':
           navigate('/admin');
           break;
@@ -39,23 +74,42 @@ const Login = () => {
         default:
           navigate('/client');
       }
-    } catch (error) {
-      toast.error('Invalid credentials. Please try again.');
-    }
+    }, 100);
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({...formData, [e.target.name]: e.target.value});
   };
 
   const demoAccounts = [
-    { email: 'admin@fokushub360.com', role: 'Admin', password: 'demo123' },
-    { email: 'manager@fokushub360.com', role: 'Manager', password: 'demo123' },
-    { email: 'client@fokushub360.com', role: 'Client', password: 'demo123' },
-    { email: 'participant@fokushub360.com', role: 'Participant', password: 'demo123' }
+    {
+      email: 'admin@demo.com',
+      password: 'demo123456',
+      role: 'admin',
+      name: 'Admin User',
+      id: 'admin-demo-id'
+    },
+    {
+      email: 'manager@demo.com',
+      password: 'demo123456',
+      role: 'manager',
+      name: 'Manager User',
+      id: 'manager-demo-id'
+    },
+    {
+      email: 'client@demo.com',
+      password: 'demo123456',
+      role: 'client',
+      name: 'Client User',
+      id: 'client-demo-id'
+    },
+    {
+      email: 'participant@demo.com',
+      password: 'demo123456',
+      role: 'participant',
+      name: 'Participant User',
+      id: 'participant-demo-id'
+    }
   ];
 
   return (
@@ -144,27 +198,34 @@ const Login = () => {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" variant="primary" size="lg" className="w-full" loading={loading}>
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="w-full"
+                loading={loading}
+              >
                 Sign In
               </Button>
             </form>
 
             {/* Demo Accounts */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-3 text-center">Demo Accounts:</p>
+              <p className="text-sm text-gray-600 mb-3 text-center">Demo Accounts (Click to auto-fill):</p>
               <div className="grid grid-cols-2 gap-2">
                 {demoAccounts.map((account) => (
                   <button
                     key={account.role}
-                    onClick={() =>
-                      setFormData({ email: account.email, password: account.password })
-                    }
+                    onClick={() => setFormData({ email: account.email, password: account.password })}
                     className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors duration-200"
                   >
                     {account.role}
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Note: These are demo accounts with mock authentication
+              </p>
             </div>
 
             {/* Sign Up Link */}

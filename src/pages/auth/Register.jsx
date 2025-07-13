@@ -5,6 +5,7 @@ import SafeIcon from '../../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import CreateDemoAccountsButton from '../../components/ui/CreateDemoAccountsButton';
 import useAuthStore from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -299,6 +300,9 @@ const Register = () => {
                 Create Account
               </Button>
             </form>
+
+            {/* Demo Account Creator */}
+            <CreateDemoAccountsButton />
 
             {/* Sign In Link */}
             <div className="mt-6 text-center">

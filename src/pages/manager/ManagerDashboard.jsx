@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SafeIcon from '../../common/SafeIcon';
@@ -6,76 +6,70 @@ import * as FiIcons from 'react-icons/fi';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
-import useFocusGroupStore from '../../store/focusGroupStore';
 import useAuthStore from '../../store/authStore';
 
-const {
-  FiPlus,
-  FiUsers,
-  FiBarChart3,
-  FiClock,
-  FiDollarSign,
-  FiTrendingUp,
-  FiEye,
-  FiMessageSquare,
-  FiPlay,
-  FiMenu,
-  FiX,
-  FiHome,
-  FiSettings,
-  FiTarget
-} = FiIcons;
+const { FiUsers, FiBarChart3, FiActivity, FiDollarSign, FiTarget, FiTrendingUp, FiClock, FiCheckCircle, 
+  FiMenu, FiX, FiHome, FiLayers, FiMessageSquare, FiSettings } = FiIcons;
 
-const ClientDashboard = () => {
+const ManagerDashboard = () => {
   const { user } = useAuthStore();
-  const { focusGroups, loadFocusGroups, loading } = useFocusGroupStore();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    loadFocusGroups();
-  }, [loadFocusGroups]);
-
   const stats = [
     {
-      label: 'Active Campaigns',
-      value: focusGroups.filter(g => g.status === 'active').length,
-      icon: FiPlay,
-      color: 'text-green-600',
-      bg: 'bg-green-100'
-    },
-    {
-      label: 'Total Participants',
-      value: focusGroups.reduce((sum, g) => sum + g.participantCount, 0),
+      label: 'Team Members',
+      value: '12',
       icon: FiUsers,
       color: 'text-blue-600',
       bg: 'bg-blue-100'
     },
     {
-      label: 'Completed Groups',
-      value: focusGroups.filter(g => g.status === 'completed').length,
-      icon: FiBarChart3,
-      color: 'text-purple-600',
-      bg: 'bg-purple-100'
+      label: 'Active Campaigns',
+      value: '8',
+      icon: FiActivity,
+      color: 'text-green-600',
+      bg: 'bg-green-100'
     },
     {
-      label: 'Total Spent',
-      value: `$${focusGroups.reduce((sum, g) => sum + (g.budget || 0), 0).toLocaleString()}`,
+      label: 'Monthly Revenue',
+      value: '$24,500',
       icon: FiDollarSign,
       color: 'text-green-600',
       bg: 'bg-green-100'
+    },
+    {
+      label: 'Team Performance',
+      value: '94%',
+      icon: FiTrendingUp,
+      color: 'text-purple-600',
+      bg: 'bg-purple-100'
     }
   ];
 
+  const teamMembers = [
+    { name: 'Alice Johnson', role: 'Senior Researcher', campaigns: 5, status: 'active' },
+    { name: 'Bob Smith', role: 'Market Analyst', campaigns: 3, status: 'active' },
+    { name: 'Carol Davis', role: 'UX Researcher', campaigns: 4, status: 'busy' },
+    { name: 'David Wilson', role: 'Data Analyst', campaigns: 2, status: 'active' }
+  ];
+
+  const recentCampaigns = [
+    { id: 1, title: 'Movie Trailer Analysis', client: 'Universal Studios', status: 'active', progress: 75 },
+    { id: 2, title: 'App UI Testing', client: 'TechStart Inc.', status: 'completed', progress: 100 },
+    { id: 3, title: 'Brand Logo Research', client: 'Fashion Co.', status: 'planning', progress: 25 }
+  ];
+
   const navigationItems = [
-    { label: 'Dashboard', icon: FiHome, href: '/client', active: location.pathname === '/client' },
-    { label: 'Focus Groups', icon: FiPlay, href: '/focus-groups', active: location.pathname === '/focus-groups' },
-    { label: 'Reports', icon: FiBarChart3, href: '/reports', active: location.pathname === '/reports' },
-    { label: 'Participants', icon: FiUsers, href: '/participants', active: location.pathname === '/participants' },
-    { label: 'Messages', icon: FiMessageSquare, href: '/messages', active: location.pathname === '/messages' },
-    { label: 'Settings', icon: FiSettings, href: '/settings', active: location.pathname === '/settings' }
+    { label: 'Dashboard', icon: FiHome, href: '/manager', active: location.pathname === '/manager' },
+    { label: 'Team', icon: FiUsers, href: '/manager/team', active: location.pathname === '/manager/team' },
+    { label: 'Campaigns', icon: FiActivity, href: '/manager/campaigns', active: location.pathname === '/manager/campaigns' },
+    { label: 'Reports', icon: FiBarChart3, href: '/manager/reports', active: location.pathname === '/manager/reports' },
+    { label: 'Tasks', icon: FiTarget, href: '/manager/tasks', active: location.pathname === '/manager/tasks' },
+    { label: 'Messages', icon: FiMessageSquare, href: '/manager/messages', active: location.pathname === '/manager/messages' },
+    { label: 'Settings', icon: FiSettings, href: '/manager/settings', active: location.pathname === '/manager/settings' }
   ];
 
   const handleNavigation = (href) => {
@@ -89,35 +83,14 @@ const ClientDashboard = () => {
         return 'success';
       case 'completed':
         return 'primary';
-      case 'draft':
+      case 'planning':
         return 'warning';
+      case 'busy':
+        return 'danger';
       default:
         return 'default';
     }
   };
-
-  const recentActivities = [
-    {
-      action: 'New participant joined',
-      campaign: 'Movie Trailer Feedback',
-      time: '2 hours ago'
-    },
-    {
-      action: 'Report generated',
-      campaign: 'App UI/UX Design Review',
-      time: '4 hours ago'
-    },
-    {
-      action: 'Campaign completed',
-      campaign: 'Book Cover Design Testing',
-      time: '1 day ago'
-    },
-    {
-      action: 'Payment processed',
-      campaign: 'Movie Trailer Feedback',
-      time: '2 days ago'
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -129,11 +102,11 @@ const ClientDashboard = () => {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-            <Link to="/client" className="flex items-center space-x-3">
+            <Link to="/manager" className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">F</span>
               </div>
-              <span className="font-display font-bold text-lg text-gray-900">Client Panel</span>
+              <span className="font-display font-bold text-lg text-gray-900">Manager Panel</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -174,7 +147,7 @@ const ClientDashboard = () => {
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500">Client</p>
+                <p className="text-xs text-gray-500">Manager</p>
               </div>
             </div>
           </div>
@@ -197,11 +170,11 @@ const ClientDashboard = () => {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-            <Link to="/client" className="flex items-center space-x-3">
+            <Link to="/manager" className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">F</span>
               </div>
-              <span className="font-display font-bold text-lg text-gray-900">Client Panel</span>
+              <span className="font-display font-bold text-lg text-gray-900">Manager Panel</span>
             </Link>
             <button
               onClick={() => setMobileSidebarOpen(false)}
@@ -242,7 +215,7 @@ const ClientDashboard = () => {
               </div>
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500">Client</p>
+                <p className="text-xs text-gray-500">Manager</p>
               </div>
             </div>
           </div>
@@ -263,7 +236,7 @@ const ClientDashboard = () => {
             <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">F</span>
             </div>
-            <span className="font-display font-bold text-lg text-gray-900">Client Panel</span>
+            <span className="font-display font-bold text-lg text-gray-900">Manager Panel</span>
           </div>
           <div className="w-6 h-6">{/* Placeholder for balance */}</div>
         </div>
@@ -271,21 +244,12 @@ const ClientDashboard = () => {
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Welcome back, {user?.name}!
-                </h1>
-                <p className="text-gray-600">
-                  Manage your focus groups and track insights from your dashboard.
-                </p>
-              </div>
-              <div className="mt-4 md:mt-0">
-                <Button variant="primary" size="lg" icon={<SafeIcon icon={FiPlus} />}>
-                  <Link to="/client/create-group">Create Focus Group</Link>
-                </Button>
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome back, {user?.name}!
+            </h1>
+            <p className="text-gray-600">
+              Manage your team and oversee focus group operations.
+            </p>
           </div>
 
           {/* Stats Grid */}
@@ -311,79 +275,66 @@ const ClientDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Recent Focus Groups */}
+            {/* Recent Campaigns */}
             <div className="lg:col-span-2">
               <Card>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Recent Focus Groups</h2>
-                  <Link to="/focus-groups" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                  <h2 className="text-xl font-semibold text-gray-900">Recent Campaigns</h2>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/manager/campaigns')}>
                     View All
-                  </Link>
+                  </Button>
                 </div>
-                {loading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse flex space-x-4">
-                        <div className="rounded-lg bg-gray-200 h-16 w-16"></div>
-                        <div className="flex-1 space-y-2 py-1">
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="space-y-4">
+                  {recentCampaigns.map((campaign) => (
+                    <div
+                      key={campaign.id}
+                      className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    >
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 mb-1">{campaign.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{campaign.client}</p>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${campaign.progress}%` }}
+                          ></div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {focusGroups.slice(0, 3).map((group) => (
-                      <div
-                        key={group.id}
-                        className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-lg flex items-center justify-center">
-                            <SafeIcon icon={FiPlay} className="w-6 h-6 text-primary-600" />
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-gray-900">{group.title}</h3>
-                            <div className="flex items-center space-x-4 text-sm text-gray-600">
-                              <span className="flex items-center">
-                                <SafeIcon icon={FiUsers} className="w-4 h-4 mr-1" />
-                                {group.participantCount}/{group.targetCount}
-                              </span>
-                              <span className="flex items-center">
-                                <SafeIcon icon={FiClock} className="w-4 h-4 mr-1" />
-                                {new Date(group.createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <Badge variant={getStatusColor(group.status)}>{group.status}</Badge>
-                          <Button variant="ghost" size="sm">
-                            <Link to={`/focus-groups/${group.id}`}>
-                              <SafeIcon icon={FiEye} className="w-4 h-4" />
-                            </Link>
-                          </Button>
-                        </div>
+                      <div className="ml-4 text-right">
+                        <Badge variant={getStatusColor(campaign.status)} className="mb-2">
+                          {campaign.status}
+                        </Badge>
+                        <div className="text-sm text-gray-500">{campaign.progress}%</div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  ))}
+                </div>
               </Card>
             </div>
 
-            {/* Recent Activity */}
+            {/* Team Overview */}
             <div>
               <Card>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Team Overview</h2>
                 <div className="space-y-4">
-                  {recentActivities.map((activity, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-primary-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-900">{activity.action}</p>
-                        <p className="text-xs text-gray-600">{activity.campaign}</p>
-                        <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                  {teamMembers.map((member, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-medium mr-3">
+                          {member.name.split(' ').map((n) => n[0]).join('')}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{member.name}</div>
+                          <div className="text-sm text-gray-600">{member.role}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={getStatusColor(member.status)} size="sm">
+                          {member.status}
+                        </Badge>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {member.campaigns} campaigns
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -394,21 +345,41 @@ const ClientDashboard = () => {
               <Card className="mt-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
-                    <Link to="/client/create-group">New Campaign</Link>
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <SafeIcon icon={FiBarChart3} className="w-4 h-4 mr-2" />
-                    <Link to="/reports">View Reports</Link>
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => navigate('/manager/team')}
+                  >
                     <SafeIcon icon={FiUsers} className="w-4 h-4 mr-2" />
-                    <Link to="/participants">Browse Participants</Link>
+                    Manage Team
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <SafeIcon icon={FiMessageSquare} className="w-4 h-4 mr-2" />
-                    <Link to="/support">Contact Support</Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => navigate('/manager/reports')}
+                  >
+                    <SafeIcon icon={FiBarChart3} className="w-4 h-4 mr-2" />
+                    View Reports
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => navigate('/manager/tasks')}
+                  >
+                    <SafeIcon icon={FiTarget} className="w-4 h-4 mr-2" />
+                    Assign Tasks
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => navigate('/manager/schedule')}
+                  >
+                    <SafeIcon icon={FiClock} className="w-4 h-4 mr-2" />
+                    Schedule Meeting
                   </Button>
                 </div>
               </Card>
@@ -420,4 +391,4 @@ const ClientDashboard = () => {
   );
 };
 
-export default ClientDashboard;
+export default ManagerDashboard;
