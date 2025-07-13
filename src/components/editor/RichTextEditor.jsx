@@ -38,165 +38,10 @@ const {
   FiMinus,
 } = FiIcons;
 
-const MenuBar = ({ editor }) => {
-  if (!editor) {
-    return null;
-  }
-
-  const addImage = () => {
-    const url = window.prompt('Enter the image URL');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  };
-
-  const addTable = () => {
-    editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run();
-  };
-
-  return (
-    <div className="border-b border-gray-200 p-2 bg-white sticky top-0 z-10 flex flex-wrap gap-1">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleBold().run()}
-        className={editor.isActive('bold') ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiBold} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={editor.isActive('italic') ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiItalic} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
-        className={editor.isActive('underline') ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiUnderline} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={editor.isActive('heading', { level: 1 }) ? 'bg-gray-100' : ''}
-      >
-        H1
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={editor.isActive('heading', { level: 2 }) ? 'bg-gray-100' : ''}
-      >
-        H2
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={editor.isActive('heading', { level: 3 }) ? 'bg-gray-100' : ''}
-      >
-        H3
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={editor.isActive('bulletList') ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiList} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().setTextAlign('left').run()}
-        className={editor.isActive({ textAlign: 'left' }) ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiAlignLeft} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().setTextAlign('center').run()}
-        className={editor.isActive({ textAlign: 'center' }) ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiAlignCenter} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().setTextAlign('right').run()}
-        className={editor.isActive({ textAlign: 'right' }) ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiAlignRight} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().setTextAlign('justify').run()}
-        className={editor.isActive({ textAlign: 'justify' }) ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiAlignJustify} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        className={editor.isActive('codeBlock') ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiCode} />
-      </Button>
-      <Button variant="outline" size="sm" onClick={addTable}>
-        <SafeIcon icon={FiGrid} />
-      </Button>
-      <Button variant="outline" size="sm" onClick={addImage}>
-        <SafeIcon icon={FiImage} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          const url = window.prompt('Enter the link URL');
-          if (url) {
-            editor.chain().focus().setLink({ href: url }).run();
-          }
-        }}
-        className={editor.isActive('link') ? 'bg-gray-100' : ''}
-      >
-        <SafeIcon icon={FiLink} />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().undo().run()}
-      >
-        Undo
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => editor.chain().focus().redo().run()}
-      >
-        Redo
-      </Button>
-    </div>
-  );
-};
-
-const RichTextEditor = ({ content, onChange, placeholder }) => {
+const RichTextEditor = ({ content = '', onChange, placeholder = 'Start writing...' }) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
+      StarterKit,
       Underline,
       Link.configure({
         openOnClick: false,
@@ -232,72 +77,157 @@ const RichTextEditor = ({ content, onChange, placeholder }) => {
     }
   }, [content, editor]);
 
+  if (!editor) {
+    return null;
+  }
+
+  const MenuButton = ({ icon, action, isActive = null, title }) => (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={action}
+      className={`p-1 ${isActive && isActive() ? 'text-primary-600 bg-primary-50' : ''}`}
+      title={title}
+    >
+      <SafeIcon icon={icon} className="w-4 h-4" />
+    </Button>
+  );
+
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
-      <MenuBar editor={editor} />
+    <div className="relative border border-gray-300 rounded-lg">
+      <div className="border-b border-gray-300 p-2 flex flex-wrap gap-1">
+        <MenuButton
+          icon={FiBold}
+          action={() => editor.chain().focus().toggleBold().run()}
+          isActive={() => editor.isActive('bold')}
+          title="Bold"
+        />
+        <MenuButton
+          icon={FiItalic}
+          action={() => editor.chain().focus().toggleItalic().run()}
+          isActive={() => editor.isActive('italic')}
+          title="Italic"
+        />
+        <MenuButton
+          icon={FiUnderline}
+          action={() => editor.chain().focus().toggleUnderline().run()}
+          isActive={() => editor.isActive('underline')}
+          title="Underline"
+        />
+        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <MenuButton
+          icon={FiType}
+          action={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          isActive={() => editor.isActive('heading', { level: 2 })}
+          title="Heading"
+        />
+        <MenuButton
+          icon={FiList}
+          action={() => editor.chain().focus().toggleBulletList().run()}
+          isActive={() => editor.isActive('bulletList')}
+          title="Bullet List"
+        />
+        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <MenuButton
+          icon={FiAlignLeft}
+          action={() => editor.chain().focus().setTextAlign('left').run()}
+          isActive={() => editor.isActive({ textAlign: 'left' })}
+          title="Align Left"
+        />
+        <MenuButton
+          icon={FiAlignCenter}
+          action={() => editor.chain().focus().setTextAlign('center').run()}
+          isActive={() => editor.isActive({ textAlign: 'center' })}
+          title="Align Center"
+        />
+        <MenuButton
+          icon={FiAlignRight}
+          action={() => editor.chain().focus().setTextAlign('right').run()}
+          isActive={() => editor.isActive({ textAlign: 'right' })}
+          title="Align Right"
+        />
+        <MenuButton
+          icon={FiAlignJustify}
+          action={() => editor.chain().focus().setTextAlign('justify').run()}
+          isActive={() => editor.isActive({ textAlign: 'justify' })}
+          title="Justify"
+        />
+        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <MenuButton
+          icon={FiLink}
+          action={() => {
+            const url = window.prompt('Enter URL:');
+            if (url) {
+              editor.chain().focus().setLink({ href: url }).run();
+            }
+          }}
+          isActive={() => editor.isActive('link')}
+          title="Add Link"
+        />
+        <MenuButton
+          icon={FiCode}
+          action={() => editor.chain().focus().toggleCodeBlock().run()}
+          isActive={() => editor.isActive('codeBlock')}
+          title="Code Block"
+        />
+        <MenuButton
+          icon={FiGrid}
+          action={() => editor.chain().focus().insertTable({
+            rows: 3,
+            cols: 3,
+            withHeaderRow: true
+          }).run()}
+          title="Insert Table"
+        />
+      </div>
+
       <EditorContent 
         editor={editor} 
-        className="prose max-w-none p-4 min-h-[500px] focus:outline-none"
+        className="prose prose-sm max-w-none p-4 min-h-[200px] focus:outline-none"
       />
+
       {editor && (
         <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
-          <div className="bg-white shadow-lg rounded-lg border border-gray-200 p-1 flex gap-1">
+          <div className="flex items-center space-x-1 bg-white shadow-lg border border-gray-200 rounded-lg p-1">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={editor.isActive('bold') ? 'bg-gray-100' : ''}
+              className={editor.isActive('bold') ? 'text-primary-600 bg-primary-50' : ''}
             >
-              <SafeIcon icon={FiBold} />
+              <SafeIcon icon={FiBold} className="w-4 h-4" />
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={editor.isActive('italic') ? 'bg-gray-100' : ''}
+              className={editor.isActive('italic') ? 'text-primary-600 bg-primary-50' : ''}
             >
-              <SafeIcon icon={FiItalic} />
+              <SafeIcon icon={FiItalic} className="w-4 h-4" />
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => editor.chain().focus().toggleUnderline().run()}
-              className={editor.isActive('underline') ? 'bg-gray-100' : ''}
+              className={editor.isActive('underline') ? 'text-primary-600 bg-primary-50' : ''}
             >
-              <SafeIcon icon={FiUnderline} />
+              <SafeIcon icon={FiUnderline} className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const url = window.prompt('Enter URL:');
+                if (url) {
+                  editor.chain().focus().setLink({ href: url }).run();
+                }
+              }}
+              className={editor.isActive('link') ? 'text-primary-600 bg-primary-50' : ''}
+            >
+              <SafeIcon icon={FiLink} className="w-4 h-4" />
             </Button>
           </div>
         </BubbleMenu>
-      )}
-      {editor && (
-        <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
-          <div className="bg-white shadow-lg rounded-lg border border-gray-200 p-1 flex flex-col gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-              className={editor.isActive('heading', { level: 1 }) ? 'bg-gray-100' : ''}
-            >
-              Heading 1
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={editor.isActive('heading', { level: 2 }) ? 'bg-gray-100' : ''}
-            >
-              Heading 2
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={editor.isActive('bulletList') ? 'bg-gray-100' : ''}
-            >
-              Bullet List
-            </Button>
-          </div>
-        </FloatingMenu>
       )}
     </div>
   );

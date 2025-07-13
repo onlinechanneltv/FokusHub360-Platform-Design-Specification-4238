@@ -48,8 +48,7 @@ export const saveProfileDetails = async (profileId, category, questionId, answer
       .eq('question_id', questionId)
       .single();
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      // PGRST116 means no rows returned, which is expected if not found
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows returned, which is expected if not found
       throw checkError;
     }
 
@@ -57,10 +56,7 @@ export const saveProfileDetails = async (profileId, category, questionId, answer
       // Update existing record
       const { data, error } = await supabase
         .from('profile_details_fokus360')
-        .update({
-          answer,
-          updated_at: new Date()
-        })
+        .update({ answer, updated_at: new Date() })
         .eq('id', existingData.id)
         .select()
         .single();
@@ -103,7 +99,7 @@ export const saveProfileDetailsBatch = async (profileId, details) => {
     const { data, error } = await supabase
       .from('profile_details_fokus360')
       .upsert(batch, {
-        onConflict: 'profile_id, question_id',
+        onConflict: 'profile_id,question_id',
         ignoreDuplicates: false
       })
       .select();
@@ -154,9 +150,9 @@ export const getProfileDetailsByCategory = async (profileId, category) => {
 export const isProfileSetupComplete = async (profileId) => {
   try {
     // Get total number of required questions
-    const requiredCategories = ['demographics']; // Minimum required categories
+    const requiredCategories = ['demographics'];
+    // Minimum required categories
     let requiredQuestionsCount = 0;
-    
     requiredCategories.forEach(category => {
       const categoryQuestions = require('../data/participantQuestions').participantQuestions[category].questions;
       const requiredInCategory = categoryQuestions.filter(q => q.required).length;
@@ -171,7 +167,7 @@ export const isProfileSetupComplete = async (profileId) => {
       .in('category', requiredCategories);
 
     if (error) throw error;
-    
+
     return count >= requiredQuestionsCount;
   } catch (error) {
     console.error('Error checking profile completion:', error.message);

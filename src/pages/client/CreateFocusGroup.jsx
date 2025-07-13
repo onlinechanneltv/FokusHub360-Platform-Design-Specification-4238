@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import SafeIcon from '../../common/SafeIcon';
+import SafeIcon from '../../components/common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
@@ -16,7 +16,6 @@ const CreateFocusGroup = () => {
   const { user } = useAuthStore();
   const { createFocusGroup, loading } = useFocusGroupStore();
   const navigate = useNavigate();
-
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     title: '',
@@ -31,9 +30,25 @@ const CreateFocusGroup = () => {
     rewardDetails: {},
     targetCriteria: {},
     questions: [
-      { id: 1, text: 'What was your first impression?', type: 'text', required: true },
-      { id: 2, text: 'How would you rate this content?', type: 'rating', required: true, options: [1, 2, 3, 4, 5] },
-      { id: 3, text: 'What improvements would you suggest?', type: 'text', required: true }
+      {
+        id: 1,
+        text: 'What was your first impression?',
+        type: 'text',
+        required: true
+      },
+      {
+        id: 2,
+        text: 'How would you rate this content?',
+        type: 'rating',
+        required: true,
+        options: [1, 2, 3, 4, 5]
+      },
+      {
+        id: 3,
+        text: 'What improvements would you suggest?',
+        type: 'text',
+        required: true
+      }
     ]
   });
 
@@ -70,7 +85,7 @@ const CreateFocusGroup = () => {
     setFormData(prev => ({
       ...prev,
       questions: [
-        ...prev.questions,
+        ...prev.questions, 
         { id: newId, text: '', type: 'text', required: true }
       ]
     }));
@@ -106,7 +121,7 @@ const CreateFocusGroup = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     
     if (formData.questions.some(q => !q.text)) {
       toast.error('Please fill in all question fields');
@@ -114,6 +129,8 @@ const CreateFocusGroup = () => {
     }
     
     try {
+      console.log("Submitting focus group data:", formData);
+      
       // Format questions for API
       const formattedQuestions = formData.questions.map(q => ({
         text: q.text,
@@ -127,12 +144,15 @@ const CreateFocusGroup = () => {
         questions: formattedQuestions
       };
       
+      console.log("Creating focus group with data:", groupData);
       const newGroup = await createFocusGroup(groupData);
+      console.log("Focus group created:", newGroup);
+      
       toast.success('Focus group created successfully!');
-      navigate(`/focus-groups/${newGroup.id}`);
+      navigate(`/client`);
     } catch (error) {
-      toast.error('Failed to create focus group');
-      console.error('Error creating focus group:', error);
+      console.error("Error in handleSubmit:", error);
+      toast.error('Failed to create focus group: ' + (error.message || 'Unknown error'));
     }
   };
 
@@ -165,7 +185,6 @@ const CreateFocusGroup = () => {
         return (
           <Card>
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Basic Information</h3>
-            
             <div className="space-y-6">
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -182,7 +201,6 @@ const CreateFocusGroup = () => {
                   required
                 />
               </div>
-              
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                   Description <span className="text-red-500">*</span>
@@ -198,7 +216,6 @@ const CreateFocusGroup = () => {
                   required
                 />
               </div>
-              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Content Type <span className="text-red-500">*</span>
@@ -230,7 +247,6 @@ const CreateFocusGroup = () => {
                 </div>
               </div>
             </div>
-            
             <div className="mt-8 flex justify-end">
               <Button
                 variant="primary"
@@ -243,12 +259,10 @@ const CreateFocusGroup = () => {
             </div>
           </Card>
         );
-      
       case 2:
         return (
           <Card>
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Content & Targeting</h3>
-            
             <div className="space-y-6">
               <div>
                 <label htmlFor="contentUrl" className="block text-sm font-medium text-gray-700 mb-2">
@@ -256,10 +270,7 @@ const CreateFocusGroup = () => {
                 </label>
                 <div className="flex items-center">
                   <div className="relative flex-1">
-                    <SafeIcon
-                      icon={FiLink}
-                      className="absolute left-3 top-3 w-5 h-5 text-gray-400"
-                    />
+                    <SafeIcon icon={FiLink} className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="text"
                       id="contentUrl"
@@ -276,17 +287,13 @@ const CreateFocusGroup = () => {
                   Provide a link to your content. For videos, use YouTube, Vimeo, or similar platforms.
                 </p>
               </div>
-              
               <div>
                 <label htmlFor="targetParticipants" className="block text-sm font-medium text-gray-700 mb-2">
                   Target Participants <span className="text-red-500">*</span>
                 </label>
                 <div className="flex items-center">
                   <div className="relative flex-1">
-                    <SafeIcon
-                      icon={FiUsers}
-                      className="absolute left-3 top-3 w-5 h-5 text-gray-400"
-                    />
+                    <SafeIcon icon={FiUsers} className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="number"
                       id="targetParticipants"
@@ -301,17 +308,13 @@ const CreateFocusGroup = () => {
                   </div>
                 </div>
               </div>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="startsAt" className="block text-sm font-medium text-gray-700 mb-2">
                     Start Date <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <SafeIcon
-                      icon={FiCalendar}
-                      className="absolute left-3 top-3 w-5 h-5 text-gray-400"
-                    />
+                    <SafeIcon icon={FiCalendar} className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="date"
                       id="startsAt"
@@ -323,16 +326,12 @@ const CreateFocusGroup = () => {
                     />
                   </div>
                 </div>
-                
                 <div>
                   <label htmlFor="endsAt" className="block text-sm font-medium text-gray-700 mb-2">
                     End Date <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <SafeIcon
-                      icon={FiCalendar}
-                      className="absolute left-3 top-3 w-5 h-5 text-gray-400"
-                    />
+                    <SafeIcon icon={FiCalendar} className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="date"
                       id="endsAt"
@@ -345,7 +344,6 @@ const CreateFocusGroup = () => {
                   </div>
                 </div>
               </div>
-              
               {/* Target Demographics (simplified) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -353,18 +351,14 @@ const CreateFocusGroup = () => {
                 </label>
                 <Card padding="sm" shadow="none" className="border border-gray-200">
                   <p className="text-gray-600 text-sm">
-                    Our AI will automatically match your focus group with the most suitable participants 
+                    Our AI will automatically match your focus group with the most suitable participants
                     based on your content and questions. You can add specific demographic criteria later.
                   </p>
                 </Card>
               </div>
             </div>
-            
             <div className="mt-8 flex justify-between">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-              >
+              <Button variant="outline" onClick={prevStep}>
                 Back
               </Button>
               <Button
@@ -378,12 +372,10 @@ const CreateFocusGroup = () => {
             </div>
           </Card>
         );
-      
       case 3:
         return (
           <Card>
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Participant Rewards</h3>
-            
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -412,16 +404,12 @@ const CreateFocusGroup = () => {
                   ))}
                 </div>
               </div>
-              
               <div>
                 <label htmlFor="rewardAmount" className="block text-sm font-medium text-gray-700 mb-2">
                   Reward Amount <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <SafeIcon
-                    icon={FiDollarSign}
-                    className="absolute left-3 top-3 w-5 h-5 text-gray-400"
-                  />
+                  <SafeIcon icon={FiDollarSign} className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                   <input
                     type="number"
                     id="rewardAmount"
@@ -438,12 +426,8 @@ const CreateFocusGroup = () => {
                 </p>
               </div>
             </div>
-            
             <div className="mt-8 flex justify-between">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-              >
+              <Button variant="outline" onClick={prevStep}>
                 Back
               </Button>
               <Button
@@ -457,12 +441,10 @@ const CreateFocusGroup = () => {
             </div>
           </Card>
         );
-      
       case 4:
         return (
           <Card>
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Questions</h3>
-            
             <div className="space-y-6">
               {formData.questions.map((question, index) => (
                 <div key={question.id} className="p-4 border border-gray-200 rounded-lg">
@@ -478,7 +460,6 @@ const CreateFocusGroup = () => {
                       </button>
                     )}
                   </div>
-                  
                   <div className="space-y-4">
                     <div>
                       <label
@@ -497,7 +478,6 @@ const CreateFocusGroup = () => {
                         required
                       />
                     </div>
-                    
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Question Type <span className="text-red-500">*</span>
@@ -513,7 +493,6 @@ const CreateFocusGroup = () => {
                         ))}
                       </select>
                     </div>
-                    
                     <div className="flex items-center">
                       <input
                         type="checkbox"
@@ -522,17 +501,13 @@ const CreateFocusGroup = () => {
                         onChange={(e) => handleQuestionChange(question.id, 'required', e.target.checked)}
                         className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                       />
-                      <label
-                        htmlFor={`required-${question.id}`}
-                        className="ml-2 text-sm text-gray-700"
-                      >
+                      <label htmlFor={`required-${question.id}`} className="ml-2 text-sm text-gray-700">
                         Required question
                       </label>
                     </div>
                   </div>
                 </div>
               ))}
-              
               <Button
                 variant="outline"
                 onClick={addQuestion}
@@ -542,12 +517,8 @@ const CreateFocusGroup = () => {
                 Add Question
               </Button>
             </div>
-            
             <div className="mt-8 flex justify-between">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-              >
+              <Button variant="outline" onClick={prevStep}>
                 Back
               </Button>
               <Button
@@ -562,7 +533,6 @@ const CreateFocusGroup = () => {
             </div>
           </Card>
         );
-      
       default:
         return null;
     }

@@ -19,7 +19,9 @@ const useFocusGroupStore = create((set, get) => ({
   loadFocusGroups: async () => {
     set({ loading: true });
     try {
+      console.log("Loading focus groups...");
       const data = await focusGroupAPI.getFocusGroups();
+      console.log("Loaded focus groups:", data);
       set({ focusGroups: data, loading: false });
     } catch (error) {
       console.error('Error loading focus groups:', error);
@@ -45,13 +47,19 @@ const useFocusGroupStore = create((set, get) => ({
   createFocusGroup: async (groupData) => {
     set({ loading: true });
     try {
+      console.log("Creating focus group from store:", groupData);
       const newGroup = await focusGroupAPI.createFocusGroup(groupData);
+      console.log("New group created:", newGroup);
+      
+      // Add to local state
       set({
         focusGroups: [newGroup, ...get().focusGroups],
         loading: false
       });
+      
       return newGroup;
     } catch (error) {
+      console.error('Error in createFocusGroup store function:', error);
       set({ loading: false });
       throw error;
     }
@@ -63,7 +71,7 @@ const useFocusGroupStore = create((set, get) => ({
     try {
       const updatedGroup = await focusGroupAPI.updateFocusGroup(groupId, updates);
       set({
-        focusGroups: get().focusGroups.map(group => 
+        focusGroups: get().focusGroups.map(group =>
           group.id === groupId ? updatedGroup : group
         ),
         currentGroup: get().currentGroup?.id === groupId ? updatedGroup : get().currentGroup,

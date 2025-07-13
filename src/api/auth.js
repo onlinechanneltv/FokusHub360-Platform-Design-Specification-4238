@@ -121,8 +121,8 @@ export const signOut = async () => {
 export const getCurrentUser = async () => {
   try {
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
     if (sessionError) throw sessionError;
+
     if (!session) return null;
 
     const { data: profileData, error: profileError } = await supabase
